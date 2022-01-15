@@ -2,10 +2,12 @@
 """
 from typing import List, Optional
 import pandas as pd
+import numpy as np
 import plotly.express as px
 from plotly.graph_objs import layout
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
+import plotly.figure_factory as ff
 
 
 def mc_boxplots_solo(df: pd.DataFrame, col_names: List[str], units: List[str]) -> None:
@@ -20,7 +22,7 @@ def mc_boxplots_solo(df: pd.DataFrame, col_names: List[str], units: List[str]) -
         )
         fig.update_xaxes(title_text=col_name, row=1, col=i+1)
         fig.update_yaxes(title_text=units[i], row=1, col=i+1)
-    fig.show()
+    return fig
 
 
 def mc_boxplots_xy(df: pd.DataFrame, col_names: List[str], target: str, base: str) -> None:
@@ -36,7 +38,7 @@ def mc_boxplots_xy(df: pd.DataFrame, col_names: List[str], target: str, base: st
         fig.update_xaxes(title_text=base, row=1, col=i+1)
         fig.update_yaxes(title_text=col_names[i], row=1, col=i+1)
         fig.update_layout(boxmode='group', legend=px_fig['layout']['legend'])
-    fig.show()
+    return fig
 
 
 def mc_histgram(df: pd.DataFrame, col_names: List[str], target: str) -> None:
@@ -53,7 +55,7 @@ def mc_histgram(df: pd.DataFrame, col_names: List[str], target: str) -> None:
                 trace['showlegend'] = False
             fig.add_trace(trace, row=1, col=i+1)
     fig.update_layout(barmode='stack', legend=layout['legend'])
-    fig.show()
+    return fig
 
 
 def px_convert(px_fig: px) -> List[any]:
@@ -88,7 +90,7 @@ def mc_df_bar(df: pd.DataFrame, col_names: List[str], target: str, subgroup: str
         fig.update_xaxes(title_text=feature, row=1, col=i+1)
         if i == 0:
             fig.update_yaxes(title_text=target, row=1, col=i+1)
-    fig.show()
+    return fig
 
 
 def mc_bar(df: pd.DataFrame, feature: str, target: str):
@@ -108,6 +110,18 @@ def mc_bar(df: pd.DataFrame, feature: str, target: str):
     # fig.show()
     # print(layout)
     return (trace, layout)
+
+def mc_df_heatmap(df: pd.DataFrame) -> None:
+    df_corr = df.corr()
+    names = list(df_corr.columns.values)
+    z = np.round(df_corr.values, 2)[::-1]
+    fig = ff.create_annotated_heatmap(
+        z, x=names, y=names[::-1], colorscale=px.colors.sequential.Blues)
+    fig.update_layout(
+        width=max(600, 50*len(df_corr)),
+        height=max(600, 50*len(df_corr)),
+    )
+    return fig
 
 
 if __name__ == '__main__':
