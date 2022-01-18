@@ -1,4 +1,9 @@
 """This Scripts collect all costermized plotly plot by coomike
+V 0.1 plot for individual type plot
+    - solo plot
+    - plot of train features to target feature
+
+V 1.0 given df, columns, options(solo, correlation). programm will smartly choose plot function to plot all relative plots.
 """
 from typing import List, Optional
 import pandas as pd
@@ -10,19 +15,76 @@ import plotly.graph_objects as go
 import plotly.figure_factory as ff
 
 
-def mc_boxplots_solo(df: pd.DataFrame, col_names: List[str], units: List[str]) -> None:
+# SOLO plots to view columns distribution alone without correlation to the targeted column, input(dataframe, target col name)
+
+def mc_box_solo(df: pd.DataFrame, col_names: List[str], units: List[str]) -> go:
     """Generate a row of box plots based on df and feature names
         """
     fig = make_subplots(rows=1, cols=len(col_names), subplot_titles=col_names)
     for i in range(len(col_names)):
         col_name = col_names[i]
         fig.add_trace(
-            go.Box(y=df[col_name], name=units[i], showlegend=False),
+            go.Box(y=df[col_name], showlegend=False),
             row=1, col=i + 1
         )
-        fig.update_xaxes(title_text=col_name, row=1, col=i+1)
+        # fig.update_xaxes(title_text=col_name, row=1, col=i+1)
         fig.update_yaxes(title_text=units[i], row=1, col=i+1)
     return fig
+
+
+def mc_hist_solo(df: pd.DataFrame, col_names: List[str], units: List[str]) -> go:
+    """Generate a row of histgram plots based on df and feature names
+        """
+    fig = make_subplots(rows=1, cols=len(col_names), subplot_titles=col_names)
+    for i in range(len(col_names)):
+        col_name = col_names[i]
+        fig.add_trace(
+            go.Histogram(x=list(df[col_name].values), showlegend=False),
+            row=1, col=i + 1
+        )
+        # fig.update_xaxes(title_text=col_name, row=1, col=i+1)
+        fig.update_yaxes(title_text=units[i], row=1, col=i+1)
+    return fig
+
+
+def mc_violin_solo(df: pd.DataFrame, col_names: List[str], units: List[str]) -> go:
+    """Generate a row of violin plots based on df and feature names
+        """
+    fig = make_subplots(rows=1, cols=len(col_names), subplot_titles=col_names)
+    for i in range(len(col_names)):
+        col_name = col_names[i]
+        fig.add_trace(
+            go.Violin(y=list(df[col_name].values),
+                      meanline_visible=True, box_visible=True, showlegend=False),
+            row=1, col=i + 1
+        )
+        # fig.update_xaxes(title_text=col_name, row=1, col=i+1)
+        fig.update_yaxes(title_text=units[i], row=1, col=i+1)
+    return fig
+
+
+def mc_bar_solo(df: pd.DataFrame, col_names: List[str]) -> go:
+    """Generate a row of bar plots based on df and feature names
+        """
+    fig = make_subplots(rows=1, cols=len(col_names), subplot_titles=col_names)
+    for i in range(len(col_names)):
+        col_name = col_names[i]
+        df_bar = df[col_name].value_counts()
+        fig.add_trace(
+            go.Bar(x=df_bar.index, y=df_bar.values, showlegend=False),
+            row=1, col=i + 1
+        )
+        # fig.update_xaxes(title_text=col_name, row=1, col=i+1)
+        # fig.update_yaxes(title_text=units[i], row=1, col=i+1)
+    return fig
+
+
+def mc_pie_solo(df: pd.DataFrame, col_names: List[str], units: List[str]) -> go:
+    """Cat, Num-Cat
+    """
+    pass
+
+# Correlation plots:
 
 
 def mc_boxplots_xy(df: pd.DataFrame, col_names: List[str], target: str, base: str) -> None:
@@ -83,7 +145,8 @@ def mc_df_bar(df: pd.DataFrame, col_names: List[str], target: str, subgroup: str
         error_bar_df = pd.merge(heights, errors)
         # print(error_bar_df)
         # TODO with subgroup info
-        trace, layout = mc_bar(error_bar_df, feature, target)
+        # trace, layout = mc_bar(error_bar_df, feature, target)
+        trace, layout = mc_bar_solo(error_bar_df, feature)
 
         trace['showlegend'] = False
         fig.add_trace(trace, row=1, col=i + 1)
